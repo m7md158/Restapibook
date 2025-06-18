@@ -6,13 +6,20 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from .models import Pilot, Drone, Competition, DroneCategory
 from .serializers import PilotSerializer, DroneSerializer, CompetitionSerializer, PilotCompetitionSerializer, DroneCategorySerializer
-
+from rest_framework import filters
+from django_filters import AllValuesFilter, DateFilter , NumberFilter
+from .filters import CompetitionFilter
 
 class DroneCategoryList(generics.ListCreateAPIView):
     queryset = DroneCategory.objects.all()
     serializer_class = DroneCategorySerializer
     name = 'dronecategory-list'
     
+    filter_fields = ('name',)
+    search_fields = ('^name',)
+    ordering_fields = ('name',)
+        
+
 class DroneCategoryDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DroneCategory.objects.all()
     serializer_class = DroneCategorySerializer
@@ -24,6 +31,10 @@ class DroneList(generics.ListCreateAPIView):
     serializer_class = DroneSerializer
     name = 'drone-list'
     
+    filter_fields = ('name', 'drone_category', 'manufacturing_date', 'has_it_completed_missions')
+    search_fields = ('^name',)
+    ordering_fields = ('name','manufacturing_date')
+    
     
 class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Drone.objects.all()
@@ -34,6 +45,10 @@ class PilotList(generics.ListCreateAPIView):
     queryset = Pilot.objects.all()
     serializer_class = PilotSerializer
     name = 'pilot-list'
+    
+    filter_fields = ('name', 'gender', 'reces_count')
+    search_fields = ('^name',)
+    ordering_fields = ('name', 'reces_count')
     
 class PilotDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pilot.objects.all()
@@ -50,6 +65,11 @@ class CompetitionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Competition.objects.all()
     serializer_class = PilotCompetitionSerializer
     name = 'competition-detail'
+    filterset_class = CompetitionFilter
+    ordering_fields = (
+        'distance_in_feet', 
+        'distance_achievement_date'
+        )
     
     
     
