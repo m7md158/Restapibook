@@ -8,6 +8,10 @@ This project is a Django RESTful API for managing toys and drones, including the
 - Modular Django app structure (`toys`, `drones`)
 - Uses Django REST Framework for serialization and API views
 - PostgreSQL as the database backend
+- Pagination support with customizable page size
+- Advanced filtering capabilities using Django Filter Backend
+- Search and ordering functionality
+- Custom pagination with upper bound limit
 
 ## Project Structure
 - `restful01/` - Main Django project settings and configuration
@@ -77,13 +81,13 @@ This project is a Django RESTful API for managing toys and drones, including the
 ## Setup Instructions
 
 1. **Clone the repository**
-2. **Install dependencies** (create a virtual environment and install Django and Django REST Framework):
+2. **Install dependencies** (create a virtual environment and install required packages):
    ```bash
-   pip install django djangorestframework psycopg2-binary
+   pip install django djangorestframework psycopg2-binary django-filter
    ```
 3. **Configure PostgreSQL**
-   - Ensure PostgreSQL is running and a database named `drones` exists.
-   - Update `restful01/settings.py` with your DB credentials if needed.
+   - Ensure PostgreSQL is running and a database named `drones` exists
+   - Update `restful01/settings.py` with your DB credentials if needed
 4. **Apply migrations**
    ```bash
    python manage.py migrate
@@ -101,13 +105,59 @@ This project is a Django RESTful API for managing toys and drones, including the
 - Django >= 5.2.2
 - djangorestframework
 - psycopg2-binary (for PostgreSQL)
+- django-filter (for advanced filtering capabilities)
+
+## Configuration
+The project includes several important configurations:
+
+### REST Framework Settings
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'drones.custompagination.LimitOffsetPaginationWithUpperBound',
+    'PAGE_SIZE': 4,
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ),
+}
+```
+
+### Database Configuration
+The project uses PostgreSQL with the following default configuration:
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'drones',
+        'USER': 'postgres',
+        'PASSWORD': '12345',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+```
+
+## API Features
+
+### Pagination
+- Default page size: 4 items per page
+- Custom pagination with upper bound limit
+- Supports limit/offset pagination
+
+### Filtering
+- Django Filter Backend for advanced filtering
+- Ordering support for all list endpoints
+- Search functionality across relevant fields
 
 ## Notes
-- The project uses Django's default admin at `/admin/`.
+- The project uses Django's default admin at `/admin/`
 - You may need to create a superuser for admin access:
   ```bash
   python manage.py createsuperuser
   ```
+- Make sure to update the database credentials in `settings.py` before running the project
+- The project uses Django 5.2.2 and is configured for development environment
 
 ---
 
