@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'drones'
+
 urlpatterns = [
     # Drone Categories
     path('drone-categories/', views.DroneCategoryList.as_view(), name=views.DroneCategoryList.name),

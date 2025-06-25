@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # path('', include('toys.urls', namespace='toys')),
-    path('drones/', include('drones.urls')),
-    path('api-auth/', include('rest_framework.urls')),  #  السطر ده هو اللي بيضيف Login/Logout
+    path('v1/', include(('drones.urls', 'drones'), namespace='v1')),
+    path('v1/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v1')),
+
+    path('v2/', include(('drones.v2.urls', 'drones_v2'), namespace='v2')),
+    path('v2/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v2')),
 ]

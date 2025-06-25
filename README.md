@@ -12,12 +12,17 @@ This project is a Django RESTful API for managing toys and drones, including the
 - Advanced filtering capabilities using Django Filter Backend
 - Search and ordering functionality
 - Custom pagination with upper bound limit
+- Token-based authentication for pilot endpoints
+- Custom permissions for drone management
+- CORS support for cross-origin requests
+- Environment variables support for secure configuration
 
 ## Project Structure
 - `restful01/` - Main Django project settings and configuration
 - `toys/` - App for managing toys
 - `drones/` - App for managing drones, categories, pilots, and competitions
 - `manage.py` - Django project management script
+- `requirements.txt` - Project dependencies
 
 ## Models
 ### Toys
@@ -40,6 +45,7 @@ This project is a Django RESTful API for managing toys and drones, including the
   - `manufacturing_date`: DateTime
   - `has_it_completed_missions`: Boolean
   - `inserted_timestamp`: DateTime, auto-set on creation
+  - `onwer`: ForeignKey to User (Note: field name has a typo, use as is)
   - Meta: ordered by `name`
 - `Pilot`
   - `name`: CharField
@@ -70,9 +76,9 @@ This project is a Django RESTful API for managing toys and drones, including the
 - `GET /drones/drones/` - List all drones
 - `POST /drones/drones/` - Create a new drone
 - `GET /drones/drones/<id>/` - Retrieve, update, or delete a drone
-- `GET /drones/pilots/` - List all pilots
-- `POST /drones/pilots/` - Create a new pilot
-- `GET /drones/pilots/<id>/` - Retrieve, update, or delete a pilot
+- `GET /drones/pilots/` - List all pilots (requires authentication)
+- `POST /drones/pilots/` - Create a new pilot (requires authentication)
+- `GET /drones/pilots/<id>/` - Retrieve, update, or delete a pilot (requires authentication)
 - `GET /drones/competitions/` - List all competitions
 - `POST /drones/competitions/` - Create a new competition
 - `GET /drones/competitions/<id>/` - Retrieve, update, or delete a competition
@@ -81,31 +87,58 @@ This project is a Django RESTful API for managing toys and drones, including the
 ## Setup Instructions
 
 1. **Clone the repository**
-2. **Install dependencies** (create a virtual environment and install required packages):
+2. **Create and activate a virtual environment**:
    ```bash
-   pip install django djangorestframework psycopg2-binary django-filter
+   python -m venv venv
+   # On Windows
+   venv\Scripts\activate
+   # On macOS/Linux
+   source venv/bin/activate
    ```
-3. **Configure PostgreSQL**
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Configure Environment Variables** (optional but recommended):
+   - Create a `.env` file in the project root
+   - Add your sensitive configuration:
+     ```
+     DB_NAME=drones
+     DB_USER=postgres
+     DB_PASSWORD=12345
+     DB_HOST=127.0.0.1
+     DB_PORT=5432
+     SECRET_KEY=your-secret-key
+     ```
+5. **Configure PostgreSQL**
    - Ensure PostgreSQL is running and a database named `drones` exists
-   - Update `restful01/settings.py` with your DB credentials if needed
-4. **Apply migrations**
+   - Update `restful01/settings.py` with your DB credentials if needed (or use environment variables)
+6. **Apply migrations**
    ```bash
    python manage.py migrate
    ```
-5. **Run the development server**
+7. **Create a superuser** (for admin access):
+   ```bash
+   python manage.py createsuperuser
+   ```
+8. **Run the development server**
    ```bash
    python manage.py runserver
    ```
-6. **Access the API**
+9. **Access the API**
    - Toys endpoints: `http://localhost:8000/toys/`
    - Drones endpoints: `http://localhost:8000/drones/`
+   - Admin interface: `http://localhost:8000/admin/`
 
 ## Dependencies
+All dependencies are listed in `requirements.txt`:
 - Python 3.x
 - Django >= 5.2.2
 - djangorestframework
 - psycopg2-binary (for PostgreSQL)
-- django-filter (for advanced filtering capabilities)
+- django-filter (for advanced filtering)
+- python-dotenv (for environment variables)
+- django-cors-headers (for CORS support)
 
 ## Configuration
 The project includes several important configurations:
@@ -158,13 +191,15 @@ DATABASES = {
 
 ## Notes
 - The project uses Django's default admin at `/admin/`
-- You may need to create a superuser for admin access:
-  ```bash
-  python manage.py createsuperuser
-  ```
-- Make sure to update the database credentials in `settings.py` before running the project
+- Make sure to update the database credentials in `settings.py` or use environment variables
 - The project uses Django 5.2.2 and is configured for development environment
 - The Drone model and serializer use the field name `onwer` (intended as `owner`). Ensure you use `onwer` in API requests and responses unless you correct the typo in the codebase.
+- For security in production:
+  - Set `DEBUG=False`
+  - Update `ALLOWED_HOSTS`
+  - Use strong, unique `SECRET_KEY`
+  - Configure CORS settings appropriately
+  - Use environment variables for sensitive data
 
 ---
 
