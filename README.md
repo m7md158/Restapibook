@@ -140,9 +140,15 @@ DATABASES = {
 
 ## API Features
 
+### Custom Permissions
+- **IsCurrentUserOwnerOrReadOnly**: Only the owner of a drone (the user who created it) can update or delete it. Other users have read-only access. This permission is enforced on the Drone endpoints (`/drones/`, `/drones/<id>/`).
+
+### Authentication
+- **Token Authentication for Pilots**: The Pilot endpoints (`/drones/pilots/`, `/drones/pilots/<id>/`) require token authentication. Only authenticated users can access these endpoints.
+
 ### Pagination
 - Default page size: 4 items per page
-- Custom pagination with upper bound limit
+- Custom pagination with upper bound limit (`max_limit = 8`)
 - Supports limit/offset pagination
 
 ### Filtering
@@ -158,6 +164,7 @@ DATABASES = {
   ```
 - Make sure to update the database credentials in `settings.py` before running the project
 - The project uses Django 5.2.2 and is configured for development environment
+- The Drone model and serializer use the field name `onwer` (intended as `owner`). Ensure you use `onwer` in API requests and responses unless you correct the typo in the codebase.
 
 ---
 

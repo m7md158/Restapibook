@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include('toys.urls', namespace='toys')),
     path('drones/', include('drones.urls')),
+    path('api-auth/', include('rest_framework.urls')),  #  السطر ده هو اللي بيضيف Login/Logout
 ]
