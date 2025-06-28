@@ -71,79 +71,6 @@ src/
 └── README.md               # This file
 ```
 
-## 🗄️ Database Models
-
-### Toys App
-
-#### Toy Model
-```python
-class Toy(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-    toy_category = models.CharField(max_length=50)
-    release_date = models.DateTimeField()
-    was_included_in_home = models.BooleanField(default=False)
-    
-    class Meta:
-        ordering = ['name']
-```
-
-### Drones App
-
-#### DroneCategory Model
-```python
-class DroneCategory(models.Model):
-    name = models.CharField(max_length=250, unique=True)
-    
-    class Meta:
-        ordering = ['name']
-```
-
-#### Drone Model
-```python
-class Drone(models.Model):
-    name = models.CharField(max_length=250, unique=True)
-    onwer = models.ForeignKey('auth.User', related_name='drones', on_delete=models.CASCADE)
-    drone_category = models.ForeignKey(DroneCategory, related_name='drones', on_delete=models.CASCADE)
-    manufacturing_date = models.DateTimeField()
-    has_it_completed_missions = models.BooleanField(default=False)
-    inserted_timestamp = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['name']
-```
-
-#### Pilot Model
-```python
-class Pilot(models.Model):
-    MALE = 'M'
-    FEMALE = 'F'
-    GENDER_CHOICES = [
-        (MALE, 'Male'),
-        (FEMALE, 'Female')
-    ]
-    
-    name = models.CharField(max_length=250, unique=True)
-    gender = models.CharField(max_length=2, choices=GENDER_CHOICES, default=MALE)
-    reces_count = models.IntegerField()
-    inserted_timestamp = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['name']
-```
-
-#### Competition Model
-```python
-class Competition(models.Model):
-    pilot = models.ForeignKey(Pilot, related_name='competitions', on_delete=models.CASCADE)
-    drone = models.ForeignKey(Drone, on_delete=models.CASCADE)
-    distance_in_feet = models.IntegerField()
-    distance_achievement_date = models.DateTimeField()
-    
-    class Meta:
-        ordering = ['-distance_in_feet']
-```
 
 ## 🔌 API Endpoints
 
@@ -187,50 +114,6 @@ class Competition(models.Model):
 - `GET /v2/pilots/` - List all pilots (v2)
 - `GET /v2/competitions/` - List all competitions (v2)
 
-## ⚙️ Configuration
-
-### REST Framework Settings
-```python
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'drones.custompagination.LimitOffsetPaginationWithUpperBound',
-    'PAGE_SIZE': 4,
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
-        'rest_framework.filters.SearchFilter',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_THROTTLE_CLASSES': (
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ),
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '300/hour',
-        'user': '100/hour',
-        'drones': '200/hour',
-        'pilots': '150/hour',
-    },
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
-}
-```
-
-### Database Configuration
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'drones',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-```
-
 ## 🔧 Custom Components
 
 ### Custom Pagination
@@ -243,40 +126,11 @@ class LimitOffsetPaginationWithUpperBound(LimitOffsetPagination):
 - Prevents excessive data retrieval
 
 ### Custom Permissions
-```python
-class IsCurrentUserOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        else:
-            return obj.owner == request.user
-```
 - Only drone owners can update/delete their drones
 - Read access for all users
 - Applied to drone endpoints
 
 ### Custom Filters
-```python
-class CompetitionFilter(filters.FilterSet):
-    from_achievement_date = filters.DateTimeFilter(
-        field_name='distance_achievement_date',
-        lookup_expr='gte'
-    )
-    to_achievement_date = filters.DateTimeFilter(
-        field_name='distance_achievement_date',
-        lookup_expr='lte'
-    )
-    min_distance_in_feet = filters.NumberFilter(
-        field_name='distance_in_feet',
-        lookup_expr='gte'
-    )
-    max_distance_in_feet = filters.NumberFilter(
-        field_name='distance_in_feet',
-        lookup_expr='lte'
-    )
-    drone_name = filters.AllValuesFilter(field_name='drone__name')
-    pilot_name = filters.AllValuesFilter(field_name='pilot__name')
-```
 - Date range filtering for competitions
 - Distance range filtering
 - Filter by drone and pilot names
@@ -290,7 +144,7 @@ class CompetitionFilter(filters.FilterSet):
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone <https://github.com/m7md158/Restapibook.git>
 cd src
 ```
 
@@ -308,17 +162,6 @@ source venv/bin/activate
 ### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables (Optional)
-Create a `.env` file in the project root:
-```env
-DB_NAME=drones
-DB_USER=postgres
-DB_PASSWORD=12345
-DB_HOST=127.0.0.1
-DB_PORT=5432
-SECRET_KEY=your-secret-key-here
 ```
 
 ### 5. Configure PostgreSQL
@@ -416,27 +259,6 @@ pytest --cov=.
 - Same functionality as v1
 - Can be enabled by uncommenting v2 URLs in `restful01/urls.py`
 
-## 📝 API Usage Examples
-
-### Creating a Drone Category
-```bash
-curl -X POST http://localhost:8000/drone-categories/ \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Quadcopter"}'
-```
-
-### Creating a Drone
-```bash
-curl -X POST http://localhost:8000/drones/ \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Basic <base64-credentials>" \
-  -d '{
-    "name": "SkyDrone X1",
-    "drone_category": 1,
-    "manufacturing_date": "2024-01-15T10:00:00Z",
-    "has_it_completed_missions": false
-  }'
-```
 
 ### Filtering Competitions
 ```bash
