@@ -109,11 +109,12 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ),
     
+    # We increased the number of requests per hour during testing
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/hour',
-        'user': '10/hour',
-        'drones': '20/hour',
-        'pilots': '15/hour',
+        'anon': '300/hour',
+        'user': '100/hour',
+        'drones': '200/hour',
+        'pilots': '150/hour',
     },
     'DEFAULT_VERSIONING_CLASS'  : 'rest_framework.versioning.NamespaceVersioning',
 }

@@ -18,10 +18,17 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-urlpatterns = [
-    path('v1/', include(('drones.urls', 'drones'), namespace='v1')),
-    path('v1/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v1')),
+# urlpatterns = [
+#     path('v1/', include(('drones.urls', 'drones'), namespace='v1')),
+#     path('v1/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v1')),
 
-    path('v2/', include(('drones.v2.urls', 'drones_v2'), namespace='v2')),
-    path('v2/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v2')),
+#     path('v2/', include(('drones.v2.urls', 'drones_v2'), namespace='v2')),
+#     path('v2/api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework_v2')),
+# ]
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('',include('drones.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+
 ]
